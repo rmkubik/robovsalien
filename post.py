@@ -22,4 +22,11 @@ auth.set_access_token(access_token, access_token_secret)
 
 api = tweepy.API(auth)
 
-api.update_status("Hello world!");
+with open("world.json", "r") as worldFile:
+    world = json.loads(worldFile.read())
+    output = ""
+    for row in range(0, len(world["map"])):
+        for col in range(0, len(world["map"][row])):
+            output += world["map"][row][col]
+        output += "\n"
+    api.update_status(output);
