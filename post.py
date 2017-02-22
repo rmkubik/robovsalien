@@ -1,4 +1,5 @@
 import tweepy
+import json
 
 # Add your credentials to auth.json
 # run the following command to avoid committing your credentials to repo
@@ -20,3 +21,5 @@ auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 
 api = tweepy.API(auth)
+
+api.update_status("Hello world!");
