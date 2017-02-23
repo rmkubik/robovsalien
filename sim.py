@@ -3,25 +3,37 @@ import post
 import world as ent
 import random
 
-def moveAttackEntities(entities):
+def printWorld(world):
+    output = ""
+    for row in range(0, len(world)):
+        for col in range(0, len(world[row])):
+            output += world[row][col]
+        output += "\n"
+    print output
+
 def moveAttackEntities(entities, world, newMap, enemies):
     for entity in entities:
         attackAndMove = random.randint(1, 100)
         if attackAndMove <= 30:
             # attack & move
-            entity.attack()
             entity.move(world, newMap, enemies, entities)
+            entity.attack(world, newMap, enemies)
         else:
             attackOrMove = random.randint(1, 100)
             if attackOrMove <= 60:
                 # attack
-                entity.attack()
+                entity.attack(world, newMap, enemies)
             else:
                 # move
                 entity.move(world, newMap, enemies, entities)
 
 def update(world):
-    random.seed(world["seed"])
+    if (world["rand_state"] == None):
+        random.seed(world["seed"])
+    else:
+
+        random.setstate((world["rand_state"][0], tuple(world["rand_state"][1]), world["rand_state"][2]))
+
     robots = []
     aliens = []
 
@@ -68,5 +80,6 @@ with open("world.json", "r+") as worldFile:
     world = update(world)
     printWorld(world["map"])
     worldFile.seek(0)
+    world["rand_state"] = random.getstate()
     json.dump(world, worldFile)
     # twitter.post(world)
