@@ -3,6 +3,12 @@ class Entity:
         row = _row
         col = _col
         team = _team
+        self.row = _row
+        self.col = _col
+        self.team = _team
+
+    def __eq__(self, other):
+        return self.row == other.row & self.col == other.col
 
     def move(self):
         print "move"
