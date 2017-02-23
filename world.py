@@ -12,9 +12,32 @@ class Entity:
 
     def move(self):
         print "move"
+    def attack(self, world, newMap, enemies):
+        target = None
+        targetDist = sys.maxint
+        for enemy in enemies:
+            if distance(self.row, self.col, enemy.row, enemy.col) < targetDist:
+                targetDist = distance(self.row, self.col, enemy.row, enemy.col)
+                target = enemy
+        if target != None:
+            atkRow = target.row + random.randint(-1, 1)
+            atkCol = target.col + random.randint(-1, 1)
 
-    def attack(self):
-        print "attack"
+            if (atkRow < 0):
+                atkRow = 0
+            if (atkRow >= world["height"]):
+                atkRow = world["height"] - 1
+            if (atkCol < 0):
+                atkCol = 0
+            if (atkCol >= world["width"]):
+                atkCol = world["width"] - 1
+
+            if atkRow == target.row & atkCol == target.col:
+                enemies.remove(target)
+
+            newMap[atkRow][atkCol] = Tiles.Explosion
+
+
 class Tiles:
     Explosion = u'\U0001F4A5'
     Fire = u'\U0001F525'
