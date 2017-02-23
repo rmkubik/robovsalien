@@ -11,6 +11,16 @@ def printWorld(world):
         output += "\n"
     print output
 
+def explosionTick(newMap):
+    for row in range(0, world["height"]):
+        for col in range(0, world["width"]):
+            if newMap[row][col] == ent.Tiles.Explosion:
+                fireChance = random.randint(1, 100)
+                if fireChance <= 35:
+                    newMap[row][col] = ent.Tiles.Fire
+                else:
+                    newMap[row][col] = ent.Tiles.Burned
+
 def moveAttackEntities(entities, world, newMap, enemies):
     for entity in entities:
         attackAndMove = random.randint(1, 100)
@@ -41,6 +51,9 @@ def update(world):
     for row in range(0, world["height"]):
         for col in range(0, world["width"]):
             newMap[row][col] = world["map"][row][col]
+
+    explosionTick(newMap)
+
     for robot in world["robots"]:
         robots.append(ent.Entity(robot["row"], robot["col"], ent.Tiles.Robot))
 
