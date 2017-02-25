@@ -33,6 +33,7 @@ class Entity:
                         self.row -= 1
                     elif world["map"][self.row - 1][self.col] == Tiles.Explosion:
                         newMap[self.row][self.col] = Tiles.Empty
+                        allies.remove(self)
                 elif rowDiff < 0:
                     if world["map"][self.row + 1][self.col] == Tiles.Empty \
                     or world["map"][self.row + 1][self.col] == Tiles.Burned:
@@ -41,6 +42,7 @@ class Entity:
                         self.row += 1
                     elif world["map"][self.row + 1][self.col] == Tiles.Explosion:
                         newMap[self.row][self.col] = Tiles.Empty
+                        allies.remove(self)
             else:
                 if colDiff > 0:
                     if world["map"][self.row][self.col - 1] == Tiles.Empty \
@@ -58,8 +60,9 @@ class Entity:
                         self.col += 1
                     elif world["map"][self.row][self.col + 1] == Tiles.Explosion:
                         newMap[self.row][self.col] = Tiles.Empty
-            allies[allies.index(self)].row = self.row
-            allies[allies.index(self)].col = self.col
+            if self in allies:
+                allies[allies.index(self)].row = self.row
+                allies[allies.index(self)].col = self.col
 
     def attack(self, world, newMap, enemies):
         target = None
