@@ -12,7 +12,10 @@ class Entity:
         self.team = _team
 
     def __eq__(self, other):
-        return self.row == other.row & self.col == other.col
+        return self.__dict__ == other.__dict__
+
+    def __str__(self):
+        return self.team.encode('utf-8') + "[" + str(self.row) + ", " + str(self.col) + "]"
 
     def move(self, world, newMap, enemies, allies):
         target = None
@@ -74,6 +77,7 @@ class Entity:
             if distance(self.row, self.col, enemy.row, enemy.col) < targetDist:
                 targetDist = distance(self.row, self.col, enemy.row, enemy.col)
                 target = enemy
+
         if target != None:
             atkRow = target.row + random.randint(-1, 1)
             atkCol = target.col + random.randint(-1, 1)
@@ -87,16 +91,16 @@ class Entity:
             if (atkCol >= world["width"]):
                 atkCol = world["width"] - 1
 
-            for enemy in enemies:
-                if enemy.row == atkRow & enemy.col == atkCol:
-                    print self.team + " " + Tiles.Explosion + " " + enemy.team
-                    enemies.remove(enemy)
+            targetTile = Entity(atkRow, atkCol, Tiles.Alien)
+            if targetTile in enemies:
+                print str(self) + " -> " + str(targetTile)
+                enemies.remove(targetTile)
 
-            for ally in allies:
-                if ally.row == atkRow & ally.col == atkCol:
-                    print self.team + " " + Tiles.Explosion + " " + ally.team
-                    allies.remove(ally)
+            if targetTile in allies:
+                print str(self) + " -> " + str(targetTile)
+                allies.remove(targetTile)
 
+            print str(self) + " -> [" + str(atkRow) + ", " + str(atkCol) + "]"
             newMap[atkRow][atkCol] = Tiles.Explosion
 
 

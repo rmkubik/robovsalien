@@ -89,9 +89,11 @@ with open("auth.json", "r") as authFile:
 
 with open("world.json", "r+") as worldFile:
     world = json.loads(worldFile.read())
-    printWorld(world["map"])
+    # printWorld(world["map"])
     world = update(world)
     printWorld(world["map"])
+    print world["aliens"]
+    print world["robots"]
     world["rand_state"] = random.getstate()
     worldFile.seek(0)
     worldFile.truncate()
