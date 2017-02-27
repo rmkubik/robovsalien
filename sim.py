@@ -25,16 +25,13 @@ def moveAttackEntities(entities, world, newMap, enemies):
     for entity in entities:
         attackAndMove = random.randint(1, 100)
         if attackAndMove <= 30:
-            # attack & move
             entity.move(world, newMap, enemies, entities)
             entity.attack(world, newMap, enemies, entities)
         else:
             attackOrMove = random.randint(1, 100)
             if attackOrMove <= 60:
-                # attack
                 entity.attack(world, newMap, enemies, entities)
             else:
-                # move
                 entity.move(world, newMap, enemies, entities)
 
 def update(world):

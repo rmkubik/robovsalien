@@ -12,63 +12,34 @@ class Entity:
         self.team = _team
 
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+        return self.row == other.row and self.col == other.col
 
     def __str__(self):
         return self.team.encode('utf-8') + "[" + str(self.row) + ", " + str(self.col) + "]"
 
     def move(self, world, newMap, enemies, allies):
-        target = None
-        targetDist = sys.maxint
-        for enemy in enemies:
-            if distance(self.row, self.col, enemy.row, enemy.col) < targetDist:
-                targetDist = distance(self.row, self.col, enemy.row, enemy.col)
-                target = enemy
-        if target != None:
-            rowDiff = self.row - target.row
-            colDiff = self.col - target.col
-            if abs(rowDiff) >= abs(colDiff):
-                if rowDiff > 0:
-                    if world["map"][self.row - 1][self.col] == Tiles.Empty \
-                    or world["map"][self.row - 1][self.col] == Tiles.Burned:
-                        newMap[self.row][self.col] = Tiles.Empty
-                        newMap[self.row - 1][self.col] = self.team
-                        self.row -= 1
-                    elif world["map"][self.row - 1][self.col] == Tiles.Explosion:
-                        newMap[self.row][self.col] = Tiles.Empty
-                        allies.remove(self)
-                elif rowDiff < 0:
-                    if world["map"][self.row + 1][self.col] == Tiles.Empty \
-                    or world["map"][self.row + 1][self.col] == Tiles.Burned:
-                        newMap[self.row][self.col] = Tiles.Empty
-                        newMap[self.row + 1][self.col] = self.team
-                        self.row += 1
-                    elif world["map"][self.row + 1][self.col] == Tiles.Explosion:
-                        newMap[self.row][self.col] = Tiles.Empty
-                        allies.remove(self)
-            else:
-                if colDiff > 0:
-                    if world["map"][self.row][self.col - 1] == Tiles.Empty \
-                    or world["map"][self.row][self.col - 1] == Tiles.Burned:
-                        newMap[self.row][self.col] = Tiles.Empty
-                        newMap[self.row][self.col - 1] = self.team
-                        self.col -= 1
-                    elif world["map"][self.row][self.col - 1] == Tiles.Explosion:
-                        newMap[self.row][self.col] = Tiles.Empty
-                        allies.remove(self)
-                elif colDiff < 0:
-                    if world["map"][self.row][self.col + 1] == Tiles.Empty \
-                    or world["map"][self.row][self.col + 1] == Tiles.Burned:
-                        newMap[self.row][self.col] = Tiles.Empty
-                        newMap[self.row][self.col + 1] = self.team
-                        self.col += 1
-                    elif world["map"][self.row][self.col + 1] == Tiles.Explosion:
-                        newMap[self.row][self.col] = Tiles.Empty
-                        allies.remove(self)
+        moveRow = self.row + random.randint(-1, 1)
+        moveCol = self.col + random.randint(-1, 1)
 
-            if self in allies:
-                allies[allies.index(self)].row = self.row
-                allies[allies.index(self)].col = self.col
+        if (moveRow < 0):
+            moveRow = 0
+        if (moveRow >= world["height"]):
+            moveRow = world["height"] - 1
+        if (moveCol < 0):
+            moveCol = 0
+        if (moveCol >= world["width"]):
+            moveCol = world["width"] - 1
+
+        if newMap[moveRow][moveCol] == Tiles.Empty \
+        or newMap[moveRow][moveCol] == Tiles.Burned:
+            newMap[self.row][self.col] = Tiles.Empty
+            newMap[moveRow][moveCol] = self.team
+            self.row = moveRow
+            self.col = moveCol
+
+        elif newMap[moveRow][moveCol] == Tiles.Explosion:
+            newMap[self.row][self.col] = Tiles.Empty
+            allies.remove(self)
 
     def attack(self, world, newMap, enemies, allies):
         target = None
@@ -91,16 +62,14 @@ class Entity:
             if (atkCol >= world["width"]):
                 atkCol = world["width"] - 1
 
-            targetTile = Entity(atkRow, atkCol, Tiles.Alien)
-            if targetTile in enemies:
-                print str(self) + " -> " + str(targetTile)
-                enemies.remove(targetTile)
+            for enemy in enemies:
+                if atkRow == enemy.row and atkCol == enemy.col:
+                    enemies.remove(enemy)
 
-            if targetTile in allies:
-                print str(self) + " -> " + str(targetTile)
-                allies.remove(targetTile)
+            for ally in allies:
+                if atkRow == ally.row and atkCol == ally.col:
+                    allies.remove(ally)
 
-            print str(self) + " -> [" + str(atkRow) + ", " + str(atkCol) + "]"
             newMap[atkRow][atkCol] = Tiles.Explosion
 
 
