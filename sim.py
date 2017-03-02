@@ -3,13 +3,21 @@ import post
 import world as ent
 import random
 
+alienVictory = False
+robotVictory = False
+alienDeaths = 0
+robotDeaths = 0
+
 def printWorld(world):
+    print stringifyWorld(world)
+
+def stringifyWorld(world):
     output = ""
     for row in range(0, len(world)):
         for col in range(0, len(world[row])):
             output += world[row][col]
         output += "\n"
-    print output
+    return output
 
 def explosionTick(newMap):
     for row in range(0, world["height"]):
@@ -35,6 +43,12 @@ def moveAttackEntities(entities, world, newMap, enemies):
                 entity.move(world, newMap, enemies, entities)
 
 def update(world):
+    global robotVictory
+    global alienVictory
+    global config
+    global alienDeaths
+    global robotDeaths
+
     if (world["rand_state"] == None):
         random.seed(world["seed"])
     else:
@@ -57,6 +71,11 @@ def update(world):
     for alien in world["aliens"]:
         aliens.append(ent.Entity(alien["row"], alien["col"], ent.Tiles.Alien))
 
+    if len(aliens) == 0:
+        robotVictory = True
+    if len(robots) == 0:
+        alienVictory = True
+
     moveAttackEntities(robots, world, newMap, aliens)
     moveAttackEntities(aliens, world, newMap, robots)
 
@@ -67,6 +86,8 @@ def update(world):
         robot_dict["col"] = robot.col
         world["robots"].append(robot_dict)
 
+    robotDeaths = config["entities"]["robot_count"] - len(robots)
+
     world["aliens"] = []
     for alien in aliens:
         alien_dict = {}
@@ -74,25 +95,76 @@ def update(world):
         alien_dict["col"] = alien.col
         world["aliens"].append(alien_dict)
 
+    alienDeaths = config["entities"]["alien_count"] - len(aliens)
+
     world["map"] = newMap
 
     return world
 
 twitter = post.Twitter()
-
 with open("auth.json", "r") as authFile:
     credentials = json.loads(authFile.read())
     twitter.init_api(credentials)
 
+config = {}
+with open("config.json", "r") as configFile:
+    config = json.loads(configFile.read())
+
+stats = {}
+with open("stats.json", "r") as statsFile:
+    stats = json.loads(statsFile.read())
+
 with open("world.json", "r+") as worldFile:
     world = json.loads(worldFile.read())
-    # printWorld(world["map"])
     world = update(world)
-    printWorld(world["map"])
+
+    output = ""
+    if alienVictory and robotVictory:
+        output += u'\U0001F47D' + " Stalemate " + u'\U0001F916' + "\n\nAll Time Stats\n" + u'\U0001F47D' + " Deaths: "
+        output += str(stats["alien_deaths"]) + " + " + str(alienDeaths) + "\n" + u'\U0001F916' + " Deaths: "
+        output += str(stats["robot_deaths"]) + " + " + str(robotDeaths)
+        stats["alien_deaths"] += alienDeaths
+        stats["robot_deaths"] += robotDeaths
+        config["seed_index"] += 1
+        world = ent.generateWorld(config["map"]["height"], config["map"]["width"], config["entities"]["alien_count"], \
+            config["entities"]["robot_count"], config["seed_index"])
+
+    elif alienVictory:
+        output += u'\U0001F47D' + " Alien Victory " + u'\U0001F47D' + "\n\nAll Time Stats\n" + u'\U0001F47D' + " Deaths: "
+        output += str(stats["alien_deaths"]) + " + " + str(alienDeaths) + "\n" + u'\U0001F916' + " Deaths: "
+        output += str(stats["robot_deaths"]) + " + " + str(robotDeaths)
+        stats["alien_deaths"] += alienDeaths
+        stats["robot_deaths"] += robotDeaths
+        config["seed_index"] += 1
+        world = ent.generateWorld(config["map"]["height"], config["map"]["width"], config["entities"]["alien_count"], \
+            config["entities"]["robot_count"], config["seed_index"])
+
+    elif robotVictory:
+        output += u'\U0001F916' + " Robot Victory " + u'\U0001F916' + "\n\nAll Time Stats\n" + u'\U0001F47D' + " Deaths: "
+        output += str(stats["alien_deaths"]) + " + " + str(alienDeaths) + "\n" + u'\U0001F916' + " Deaths: "
+        output += str(stats["robot_deaths"]) + " + " + str(robotDeaths)
+        stats["alien_deaths"] += alienDeaths
+        stats["robot_deaths"] += robotDeaths
+        config["seed_index"] += 1
+        world = ent.generateWorld(config["map"]["height"], config["map"]["width"], config["entities"]["alien_count"], \
+            config["entities"]["robot_count"], config["seed_index"])
+
+    else:
+        output += stringifyWorld(world["map"])
+
+    print output
     print world["aliens"]
     print world["robots"]
+
     world["rand_state"] = random.getstate()
     worldFile.seek(0)
     worldFile.truncate()
     json.dump(world, worldFile)
-    # twitter.post(world)
+
+    # twitter.postWorld(world)
+
+with open("config.json", "w") as configFile:
+    json.dump(config, configFile)
+
+with open("stats.json", "w") as statsFile:
+    json.dump(stats, statsFile)

@@ -23,10 +23,13 @@ class Twitter:
 
         self.api = tweepy.API(auth)
 
-    def post(self, world):
+    def postWorld(self, world):
         output = ""
         for row in range(0, len(world["map"])):
             for col in range(0, len(world["map"][row])):
                 output += world["map"][row][col]
             output += "\n"
         self.api.update_status(output);
+
+    def post(self, string):
+        self.api.update_status(string)
