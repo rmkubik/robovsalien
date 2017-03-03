@@ -1,0 +1,7 @@
+{
+  "name": "Robots vs. Aliens",
+  "description": "A twitter bot simulated battle between aliens and robots.",
+  "repository": "https://github.com/heroku/python-getting-started",
+  "keywords": ["python", "bots", "robots", "aliens" ],
+  "addons": [ "tweepy" ]
+}
