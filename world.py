@@ -82,8 +82,8 @@ def generateWorld(width, height, alienCount, robotCount, seed):
     world = {}
     world["map"] = generateMap(width, height)
     world["rand_state"] = None
-    world["robots"] = placeAliens(world["map"], alienCount)
-    world["aliens"] = placeRobots(world["map"], robotCount)
+    world["robots"] = placeRobots(world["map"], robotCount)
+    world["aliens"] = placeAliens(world["map"], alienCount)
     world["seed"] = 0
     world["height"] = height
     world["width"] = width
