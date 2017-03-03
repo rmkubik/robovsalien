@@ -87,6 +87,7 @@ def generateWorld(width, height, alienCount, robotCount, seed):
     world["seed"] = 0
     world["height"] = height
     world["width"] = width
+    world["reset"] = False
     return world
 
 def placeAliens(worldMap, alienCount):
